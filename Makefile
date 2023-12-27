@@ -1,4 +1,7 @@
+ENTRY_POINT = src/srch.go
+
+
 run:
-	go run srch/srch.go
+	go run $(ENTRY_POINT)
 install:
-	go install srch/srch.go
+	go install $(ENTRY_POINT)
