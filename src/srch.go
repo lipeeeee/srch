@@ -1,18 +1,24 @@
 package main
 
 import (
-  // Internal
-  "bufio"
-  "errors"
-  "fmt"
-  "log"
-  "os"
+	// Internal
+	//"bufio"
+	"errors"
+	"fmt"
+	"io/fs"
+	"log"
+	"os"
 
-  // External
-  "github.com/urfave/cli/v2"
+	// External
+	"github.com/urfave/cli/v2"
 )
 
 func main() {
+  files := getAllFilesInDirectory("./", true)
+  for idx, file := range files {
+    fmt.Println(fmt.Sprintf("%d:%h:%d", idx, file.Name(), file.IsDir()))
+  }
+
   app := &cli.App {
     Name:   "srch",
     Usage:  "Performant recursive file content search tool",
@@ -72,6 +78,25 @@ func isDirectory(path string) (bool, error) {
   return fileInfo.IsDir(), err
 }
 
+// Get files in directory
+func getAllFilesInDirectory(path string, recursive bool) []fs.DirEntry {
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, e := range entries {
+    if recursive && e.IsDir() {
+      recursive_dir_call := getAllFilesInDirectory(path + "/" + e.Name(), recursive)
+      for _, entry := range recursive_dir_call {
+        entries = append(entries, entry)
+      }
+    }
+	}
+  
+  return entries
+}
+
 // Make boyer-moore skip dictionary 
 func makeSkipList(pattern string) map[string]int {
   skip_list := make(map[string]int)
@@ -82,16 +107,3 @@ func makeSkipList(pattern string) map[string]int {
   return skip_list
 }
 
-// Reads file contents
-func readFile() {
-  f, err := os.Open("./srch/test.txt")
-  if err != nil {
-    log.Fatal(err)
-  }
-  defer f.Close()
-
-  scanner := bufio.NewScanner(f)
-  for scanner.Scan() {
-    fmt.Println(scanner.Text())
-  }
-}
