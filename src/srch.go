@@ -1,16 +1,16 @@
 package main
 
 import (
-  // Internal
-  //"bufio"
-  "errors"
-  "fmt"
-  //"io/fs"
-  "log"
-  "os"
+	// Internal
+	//"bufio"
+	"errors"
+	"fmt"
+	//"io/fs"
+	"log"
+	"os"
 
-  // External
-  "github.com/urfave/cli/v2"
+	// External
+	"github.com/urfave/cli/v2"
 )
 
 /*
@@ -24,7 +24,7 @@ import (
 */
 
 func main() {
-  files := getAllFilesInDirectory("./", true)
+	files := getAllFilesInDirectory("./", true)
 	for idx, file := range files {
 		fmt.Println(fmt.Sprintf("%d:%s", idx, file))
 	}
