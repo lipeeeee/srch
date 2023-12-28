@@ -1,26 +1,26 @@
 package main
 
 import (
-	// Internal
-	//"bufio"
-	"errors"
-	"fmt"
-	//"io/fs"
-	"log"
-	"os"
+  // Internal
+  //"bufio"
+  "errors"
+  "fmt"
+  //"io/fs"
+  "log"
+  "os"
 
-	// External
-	"github.com/urfave/cli/v2"
+  // External
+  "github.com/urfave/cli/v2"
 )
 
 /*
-  main
-  main processing / arg parsing
-  srch(path, recursive_flag)
-    makeSkipList
-    search files
-      for each file in lines
-        search & print found
+	main
+	main processing / arg parsing
+	srch(path, recursive_flag)
+		makeSkipList
+		search files
+			for each file in lines
+				search & print found
 */
 
 func main() {
