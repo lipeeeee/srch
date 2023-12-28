@@ -24,7 +24,7 @@ import (
 */
 
 func main() {
-	files := getAllFilesInDirectory("./", true)
+  files := getAllFilesInDirectory("./", true)
 	for idx, file := range files {
 		fmt.Println(fmt.Sprintf("%d:%s", idx, file))
 	}
@@ -67,6 +67,11 @@ Try 'srch --help' for more information`)
 	if err := app.Run(os.Args); err != nil {
 		fmt.Println(err.Error())
 	}
+}
+
+// srch main fn
+func srch() {
+
 }
 
 // Gets complete path given a relative in cli execution
