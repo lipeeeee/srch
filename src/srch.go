@@ -1,16 +1,15 @@
 package main
 
 import (
-  // Internal
-  //"bufio"
-  "errors"
-  "fmt"
-  //"io/fs"
-  "log"
-  "os"
+	// Internal
+	"bufio"
+	"errors"
+	"fmt"
+	"log"
+	"os"
 
-  // External
-  "github.com/urfave/cli/v2"
+	// External
+	"github.com/urfave/cli/v2"
 )
 
 /*
@@ -24,14 +23,20 @@ import (
 */
 
 func main() {
-  files := getAllFilesInDirectory("./", true)
-  for idx, file := range files {
-    fmt.Println(fmt.Sprintf("%d:%s", idx, file))
-  }
+  var recursive bool
 
   app := &cli.App{
     Name:  "srch",
     Usage: "Performant recursive file content search tool",
+    Flags: []cli.Flag {
+      &cli.BoolFlag {
+        Name:         "recursive",
+        Aliases:      []string{"r"},
+        Value:        false,
+        Usage:        "Flag for recursive directory searching",
+        Destination:  &recursive,
+      },
+    },
     Action: func(cCtx *cli.Context) error {
       // Check number of args passed in before doing anything
       // 0      -> provide breaf usage explanation
@@ -58,7 +63,17 @@ Try 'srch --help' for more information`)
         return err
       }
 
-      fmt.Println("path:", path, is_directory)
+      // Make skip list
+      skip_list := makeSkipList(cCtx.Args().Get(0))
+
+      // If it is a file, simply call srch with the path
+      if !is_directory {
+        err := srch(&skip_list, path)
+        if err != nil {
+          return err
+        }
+      }
+
       return nil
   	},
   }
@@ -70,8 +85,24 @@ Try 'srch --help' for more information`)
 }
 
 // srch main fn
-func srch() {
+func srch(skip_list *map[string]int, path string) error {
+  file, err := os.Open(path)
+  if err != nil {
+    return err
+  }
+  defer file.Close()
 
+  scanner := bufio.NewScanner(file)
+  idx := 0
+  for scanner.Scan() {
+    idx++
+    fmt.Println(fmt.Sprintf("%d-%s", idx, scanner.Text()))
+  }
+  
+  if err := scanner.Err(); err != nil {
+    return err
+  }
+  return nil
 }
 
 // Gets complete path given a relative in cli execution
@@ -114,7 +145,7 @@ func getAllFilesInDirectory(path string, recursive bool) []string {
   return c
 }
 
-// Make boyer-moore skip dictionary
+// Make boyer moore bad-char heuristic dictionary
 func makeSkipList(pattern string) map[string]int {
   skip_list := make(map[string]int)
   pattern_length := len(pattern)
