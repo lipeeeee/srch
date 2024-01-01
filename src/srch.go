@@ -203,9 +203,9 @@ func getAllFilesInDirectory(path string, recursive bool) []string {
 
 func makeStringFinder(pattern string) *stringFinder {
   f := &stringFinder{
-  	pattern:        pattern,
+    pattern:        pattern,
     length:         len(pattern),
-  	goodSuffixSkip: make([]int, len(pattern)),
+    goodSuffixSkip: make([]int, len(pattern)),
   }
   // last is the index of the last character in the pattern.
   last := len(pattern) - 1
