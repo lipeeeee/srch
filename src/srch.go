@@ -15,9 +15,9 @@ import (
 
 // ANSI Color codes for terminal color printing
 const (
-  Reset   = "\033[0m"
-  Red     = "\033[31m"
-  Magenta = "\033[35m"
+  SRCH_RESET  = "\033[0m"
+  SRCH_RED    = "\033[31m"
+  SRCH_MAGENTA= "\033[35m"
 )
 
 // stringFinder efficiently finds strings in a source text. It's implemented
@@ -115,8 +115,8 @@ func longestCommonSuffix(a, b string) (i int) {
   return
 }
 
-// next returns all the indicies in text of an occurrence of the pattern. If
-// the pattern is not found, it returns an empty slice
+// next returns the next indicie in text of an occurrence of the pattern. If
+// the pattern is not found, it returns -1
 func (f *stringFinder) next(text string) int {
   i := f.length - 1
   for i < len(text) {
@@ -134,7 +134,6 @@ func (f *stringFinder) next(text string) int {
   return -1 
 }
 
-// srch entry point
 func main() {
   var recursive bool
 
@@ -176,7 +175,6 @@ Try 'srch --help' for more information`)
         return err
       }
 
-      // Initialize srch engine
       engine := makeStringFinder(cCtx.Args().Get(0))
 
       // If it is a file, simply call srch with the path
@@ -203,19 +201,17 @@ Try 'srch --help' for more information`)
 //  - engine:     pointer of an instance of srch engine
 //  - path:       path to a specific file to analyze
 func srch(engine *stringFinder, path string) error {
-  // 1. Open file
+  // Open file
   file, err := os.Open(path)
   if err != nil {
     return err
   }
   defer file.Close()
 
-  // 2. Create file reader
+  // Create file reader
   scanner := bufio.NewScanner(file)
   idx := 0
 
-  // 3. For each line in file, we will iterate on that same line until engine
-  // does not find anything, whilst printing everything we find
   for scanner.Scan() {
     idx++
     text_to_search := scanner.Text()
@@ -230,14 +226,13 @@ func srch(engine *stringFinder, path string) error {
     found_index := engine.next(text_to_search)
     for found_index != -1 {
       indicies = append(indicies, found_index)
-      text_to_search = text_to_search[found_index + len(engine.pattern):]
+      text_to_search = text_to_search[found_index + engine.length:]
       found_index = engine.next(text_to_search)
       current_found = true
     }
 
-    // Print to STDOUT 
     if current_found {
-      printFind(path, idx, indicies, engine.pattern, text_to_search)
+      printFind(path, idx, indicies, engine.pattern, scanner.Text())
     }
   }
   
@@ -249,7 +244,7 @@ func srch(engine *stringFinder, path string) error {
 
 // Prints to STDOUT result of a single find
 func printFind(path string, line_num int, indicies []int, pat string, txt string) {
-  fmt.Println(fmt.Sprintf("Found: %d-%s-%d", line_num, txt, indicies[0]+ 1))
+  fmt.Println("RECEIVED PRINT WITH:\nPATH", path, "|\nLINE_NUM", line_num, "|\nINDICIES:", indicies, "|\nPAT:", pat, "|\nTXT:", txt)
 }
 
 // Gets complete path given a relative in cli execution
