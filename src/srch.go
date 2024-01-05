@@ -1,16 +1,17 @@
 package main
 
 import (
-  // Internal
-  "bufio"
-  "errors"
-  "fmt"
-  "log"
-  "os"
-  "strings"
+	// Internal
+	"bufio"
+	"errors"
+	"fmt"
+	"log"
+	"os"
+	"strings"
+  "path/filepath"
 
-  // External
-  "github.com/urfave/cli/v2"
+	// External
+	"github.com/urfave/cli/v2"
 )
 
 // ANSI Color codes for terminal color printing
@@ -184,7 +185,13 @@ Try 'srch --help' for more information`)
           return err
         }
       } else {
-
+        getFilesRecursively(path)
+        for _, e := range files {
+          err := srch(engine, e)
+          if err != nil {
+            return err
+          }
+        }
       }
 
       return nil
@@ -218,8 +225,6 @@ func srch(engine *stringFinder, path string) error {
 
     // Create buffer to stored this line's indicies
     var indicies []int = make([]int, 0)
-    // this is a very, very minor optimization, instead of calculating len(indicies)
-    // at runtime we instead check for this variable when printing to STDOUT
     current_found := false 
 
     // Keep iterating on each found pattern 
@@ -232,7 +237,7 @@ func srch(engine *stringFinder, path string) error {
     }
 
     if current_found {
-      printFind(path, idx, indicies, engine.pattern, scanner.Text())
+      printFind(path, idx, indicies, engine, scanner.Text())
     }
   }
   
@@ -242,9 +247,58 @@ func srch(engine *stringFinder, path string) error {
   return nil
 }
 
+func colorizeSubstring(input string, startIndex, length int, colorCode string) string {
+	before := input[:startIndex]
+	after := input[startIndex+length:]
+	substring := input[startIndex : startIndex+length]
+
+	return before + colorCode + substring + SRCH_RESET + after
+}
+
+func colorizeAllOccurrences(input, target, colorCode string) string {
+	var result string
+	startIndex := 0
+
+	for {
+		index := strings.Index(input[startIndex:], target)
+		if index == -1 {
+			// No more occurrences found
+			result += input[startIndex:]
+			break
+		}
+
+		index += startIndex
+		before := input[startIndex:index]
+		word := input[index : index+len(target)]
+
+		result += before + colorCode + word + SRCH_RESET 
+		startIndex = index + len(target)
+	}
+
+	return result
+}
+
+func colorizeOutput(path string, input string, indexes []int, engine *stringFinder) string {
+  var output string
+
+  // Get short & colorize path
+  short_path, _ := os.Getwd()
+  path = path[len(short_path):] + ":"
+  if path[0] == '/' {
+    path = path[1:]
+  }
+  colorized_path := colorizeSubstring(path, 0, len(path), SRCH_MAGENTA)
+  output += colorized_path + " "
+  output += colorizeAllOccurrences(input, engine.pattern, SRCH_RED)
+
+  // Append indicies with colors
+  return output
+}
+
 // Prints to STDOUT result of a single find
-func printFind(path string, line_num int, indicies []int, pat string, txt string) {
-  fmt.Println("RECEIVED PRINT WITH:\nPATH", path, "|\nLINE_NUM", line_num, "|\nINDICIES:", indicies, "|\nPAT:", pat, "|\nTXT:", txt)
+func printFind(path string, line_num int, indicies []int, engine *stringFinder, txt string) {
+  coloredString := colorizeOutput(path, txt, indicies, engine)
+  fmt.Println(coloredString)
 }
 
 // Gets complete path given a relative in cli execution
@@ -287,3 +341,23 @@ func getAllFilesInDirectory(path string, recursive bool) []string {
   return c
 }
 
+var files []string
+func visitFile(fp string, fi os.DirEntry, err error) error {
+	if err != nil {
+		return nil
+	}
+
+	if fi.IsDir() {
+		return nil
+	}
+  files = append(files, fp)
+	return nil
+}
+
+func getFilesRecursively(directoryPath string) error {
+	err := filepath.WalkDir(directoryPath, visitFile)
+	if err != nil {
+		return err
+	}
+	return nil
+}
