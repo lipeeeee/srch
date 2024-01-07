@@ -1,2 +1,2 @@
 # srch
-Performant recursive file content search tool for quick string matching
+Performant single-file recursive file content search tool for quick string matching
