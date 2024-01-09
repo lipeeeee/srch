@@ -1,8 +1,8 @@
 package srch
 
 import (
-	"strings"
 	"os"
+	"strings"
 )
 
 // ANSI Color codes for terminal color printing
@@ -46,16 +46,16 @@ func colorizeAllOccurrences(input string, target string, colorCode string) strin
 func ColorizeOutput(path string, input string, engine *StringFinder) string {
 	var output string
 
-	// Get short & colorize path
 	short_path, _ := os.Getwd()
+
 	path = path[len(short_path):] + ":"
 	if path[0] == '/' {
 		path = path[1:]
 	}
 	colorized_path := colorizeSubstring(path, 0, len(path), srch_magenta)
+
 	output += colorized_path + " "
 	output += colorizeAllOccurrences(input, engine.Pattern, srch_red)
 
-	// Append indicies with colors
 	return output
 }
