@@ -1,4 +1,4 @@
-ENTRY_POINT = src/srch.go
+ENTRY_POINT = internal/build/build.go
 
 run:
 	go run $(ENTRY_POINT)

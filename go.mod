@@ -1,8 +1,8 @@
-module github.com/lipeeeee/srch
+module srch
 
 go 1.21.5
 
-require github.com/urfave/cli/v2 v2.26.0
+require github.com/urfave/cli/v2 v2.27.1
 
 require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
