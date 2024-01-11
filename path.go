@@ -62,9 +62,5 @@ func GetFilesRecursively(directoryPath string) ([]string, error) {
 }
 
 func GetCompletePath(relative_path string) (string, error) {
-	working_dir, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	return working_dir + "/" + relative_path, nil
+  return filepath.Abs(relative_path)
 }
