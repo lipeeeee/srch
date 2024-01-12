@@ -5,7 +5,7 @@ import (
   "strings"
 )
 
-// ANSI Color codes for terminal color printing
+// Color codes for terminal color printing
 const (
   srch_reset   = "\033[0m"
   srch_red     = "\033[31m"
