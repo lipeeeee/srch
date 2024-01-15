@@ -15,3 +15,5 @@ srch string directory
 git clone https://github.com/lipeeeee/srch.git
 cd srch && make install
 ```
+
+*a project by lipeeeee*
